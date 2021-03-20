@@ -33,6 +33,7 @@ def cnct_client(ip):#connects client to host based on the ip gotten from server
     print("what is your nickname")
     ans = "taken"
     while ans == "taken":
+        print("the name is taken enter new name")
         name = input()
         s.send(name.encode())  # sends nicname to host
         ans = s.recv(1024).decode()
