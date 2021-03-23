@@ -26,7 +26,8 @@ def host():#creates the host by getting the pin an connecting the cllinets
 
     k.send("bye".encode())
     k.close()#closes connection with server
-
+    for i in CLINET_ARR:
+        print(i.To_string())
 
 
 
@@ -53,7 +54,7 @@ def name_in(name):#checks if the given client object has a name similer to a nam
     for i in CLINET_ARR:
         if name == i.Get_name():
             return False
-        return True
+    return True
 
 
 

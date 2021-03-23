@@ -11,4 +11,7 @@ class Client(object):
     def Get_value(self):
         return self.value
 
+    def To_string(self):
+        return self.name + ":"+ str(self.value)
+
 
