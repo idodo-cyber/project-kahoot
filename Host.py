@@ -50,6 +50,9 @@ def connect_client(c,addr):#connects client and sets him up with the clients nic
     print(name)
     c.send("good".encode())
 
+
+
+
 def name_in(name):#checks if the given client object has a name similer to a name prevoiusly taken
     for i in CLINET_ARR:
         if name == i.Get_name():
