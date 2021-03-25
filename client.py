@@ -1,5 +1,5 @@
 import socket
-SIP = "10.100.102.114"
+SIP = "10.100.102.12"
 SPORT = 55368
 MPORT = 53476
 
