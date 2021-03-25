@@ -1,7 +1,7 @@
 import socket
 import threading
 from Client_class import Client
-SIP = "10.100.102.114"
+SIP = "10.100.102.12"
 IP = "0.0.0.0"
 CLINET_ARR = []
 SPORT = 55368
