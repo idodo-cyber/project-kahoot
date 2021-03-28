@@ -1,7 +1,7 @@
 import socket
 import threading
 from Client_class import Client
-SIP = "10.100.102.12"
+SIP = "127.0.0.1"
 IP = "0.0.0.0"
 CLINET_ARR = []
 SPORT = 55368
@@ -26,7 +26,7 @@ def host():#creates the host by getting the pin an connecting the cllinets
     for i in arr:
         i.join()#waits until all clients are connected an set
 
-    k.send("bye".encode())
+    k.send(build_ans("bye").encode())
     k.close()#closes connection with server
     handle_quiz()#handles the quiz
 
@@ -38,21 +38,21 @@ def host():#creates the host by getting the pin an connecting the cllinets
 def get_pin():#recieves game pin from server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SIP, SPORT))
-    s.send("hello".encode())
-    print(s.recv(1024).decode())
+    s.send((str(len("hello"))+"_"+"hello").encode())
+    print(all_mesage(s))
     return s
 
 def connect_client(c,addr):#connects client and sets him up with the clients nickname
-    name = (c.recv(1024)).decode()
+    name = all_mesage(c)
     while  not name_in(name):
-        c.send("taken".encode())#checks if the nickname is taken
-        name = (c.recv(1024)).decode()
+        c.send(build_ans("taken").encode())#checks if the nickname is taken
+        name = all_mesage(c)
     cli = Client(name,c)
     lock.acquire()
     CLINET_ARR.append(cli)
     lock.release()
     print(name)
-    c.send("good".encode())
+    c.send(build_ans("good").encode())
 
 def handle_quiz():
     with open("demo_quiz") as file:
@@ -75,7 +75,9 @@ def handle_quiz():
                         #sends the value,added value and place of client to client to the client
 
             first_lines = "".join([file.readline() for _ in range(5)]).split("\n")
-
+        for i in CLINET_ARR:
+            i.end_client()
+        CLINET_ARR.clear()
 
 
 
@@ -88,10 +90,8 @@ def all_mesage(sock):#recievs all of the message based on the message length giv
     lent = sock.recv(1).decode()
     while "_" not in lent:
         lent += sock.recv(1).decode()
-    print(lent)
     lent = int(lent[:-1])#recives the message length
     ans = sock.recv(lent).decode()
-    print(ans)
     while not len(ans) == lent:
         ans += sock.recv(lent)
     return ans#recieves the message
@@ -104,7 +104,7 @@ def handle_ans(true,cli):#handles the given ans and adds points accordingly
     ans,time = cli.recv_ans()#recieves answer and time it tokk to answer from client
     if ans == true:#if answer is correct adds the corresponding value
         val = 1-(int(time)/ANS_TIME/2)
-        val = val*ANS_WORTH
+        val = int(val*ANS_WORTH)
     else:
         val = 0
     cli.add_value(val)
