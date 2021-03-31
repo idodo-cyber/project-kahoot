@@ -1,68 +1,70 @@
 import socket
 import datetime
+
 SIP = "127.0.0.1"
 SPORT = 55368
 MPORT = 53476
 
-def client():#main loop of the client
-   ip = get_addr()
-   while  ip == "no":
-       print("pin invalid enter new one")
-       ip = get_addr()
-   s = cnct_client(ip)
-   ans = ""
-   while not ans == "STP":
-       ans = all_mesage(s)
-       if ans == "STRT":
+
+def client():  # main loop of the client
+    ip = get_addr()
+    while ip == "no":
+        print("pin invalid enter new one")
+        ip = get_addr()
+    s = cnct_client(ip)
+    ans = ""
+    while not ans == "STP":
+        ans = all_message(s)
+        if ans == "STRT":
             answer = build_ans()
             s.send(answer.encode())
-            point = all_mesage(s).split("_")
-            print("you have " + point[0] + " you gained "+point[1] + "and you are at place" + point[2])
-   print("congrats u finished game")
-   s.close()
+            point = all_message(s).split("_")
+            print("you have " + point[0] + " you gained " + point[1] + "and you are at place" + point[2])
+    print("congrats u finished game")
+    s.close()
 
 
-
-def get_addr():#gets the ip addr based on game pin
+def get_addr():  # gets the ip addr based on game pin
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SIP, SPORT))
     print("what is the passwrd")
     ans = input()
     s.send((build_answer("please")).encode())
     s.send(build_answer(ans).encode())
-    addr = all_mesage(s)
+    addr = all_message(s)
     return addr
+
 
 def build_ans():
     start_time = datetime.datetime.now()
-    ans = input()#this will change to choose based on button
+    ans = input()  # this will change to choose based on button
     end_time = datetime.datetime.now()
     time_diff = (end_time - start_time)
     execution_time = time_diff.total_seconds() * 1000
     exe = int(execution_time)
-    ans = build_answer(ans + "_" + str(exe))#builds the answer based on protocol len_ans_time
+    ans = build_answer(ans + "_" + str(exe))  # builds the answer based on protocol len_ans_time
     return ans
 
 
-
-def cnct_client(ip):#connects client to host based on the ip gotten from server
+def cnct_client(ip):  # connects client to host based on the ip gotten from server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     s.connect((ip, MPORT))
     print("what is your nickname")
     name = input()
     s.send(build_answer(name).encode())  # sends nicname to host
-    ans = all_mesage(s)
+    ans = all_message(s)
     while ans == "taken":
         print("the name is taken enter new name")
         name = input()
         s.send(build_answer(name).encode())  # sends nicname to host
-        ans = all_mesage(s)
+        ans = all_message(s)
 
     return s
 
+
 def main():
-   while True:
+    while True:
         print("what am i")
         ans = input()
         if ans == "clinet":
@@ -70,27 +72,30 @@ def main():
         else:
             print("please enter appropriate ans")
 
-def all_mesage(sock):#recievs all of the message based on the message length given at the begining of the messsage
+
+def all_message(sock):  # receives all of the message based on the message length given at the begining of the messsage
     try:
         lent = sock.recv(1).decode()
         if not lent == "":
             while "_" not in lent:
                 lent += sock.recv(1).decode()
-            lent = int(lent[:-1])#recives the message length
+            lent = int(lent[:-1])  # recives the message length
             ans = sock.recv(lent).decode()
             while not len(ans) == lent:
                 ans += sock.recv(lent)
-            return ans#recieves the message
+            return ans  # recieves the message
         else:
             print("host disconnected unexpectedly")
             sock.close()
             client()
-    except:
+    except Exception:
         print("host disconnected unexpectedly")
         sock.close()
         client()
-def build_answer(ans):#builds apropriate answer according to protocol
-    return str(len(ans))+"_"+ans
+
+
+def build_answer(ans):  # builds appropriate answer according to protocol
+    return str(len(ans)) + "_" + ans
 
 
 if __name__ == '__main__':
