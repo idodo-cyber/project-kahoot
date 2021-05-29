@@ -1,5 +1,3 @@
-
-
 class Client(object):
     def __init__(self,name,sock):
         self.name = name
@@ -25,20 +23,27 @@ class Client(object):
     def recv_ans(self):
         ans = all_mesage(self.socket)
         ans = ans.split("_")
-        return ans[0],ans[1]
+        try:
+            return ans[0],ans[1]
+        except:
+            return ans,""
 
     def To_string(self):
         return self.name + ":"+ str(self.value)
 
 
 def all_mesage(sock):#recievs all of the message based on the message length given at the begining of the messsage
-    lent = sock.recv(1).decode()
-    while "_" not in lent:
-        lent += sock.recv(1).decode()
-    print(lent)
-    lent = lent[:-1]#recives the message length
-    ans = sock.recv(int(lent)).decode()
-    print(ans)
-    while not len(ans) == int(lent):
-        ans += sock.recv(lent)
+    try:
+        sock.settimeout(60)
+        lent = sock.recv(1).decode()
+        while "_" not in lent:
+            lent += sock.recv(1).decode()
+        print(lent)
+        lent = lent[:-1]#recives the message length
+        ans = sock.recv(int(lent)).decode()
+        print(ans)
+        while not len(ans) == int(lent):
+            ans += sock.recv(lent)
+    except:
+        ans = "OOF"
     return ans#recieves the message

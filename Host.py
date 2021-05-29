@@ -1,6 +1,8 @@
 import socket
 import threading
 from Client_class import Client
+import tkinter as tk
+from functools import partial
 SIP = "127.0.0.1"
 IP = "0.0.0.0"
 CLINET_ARR = []
@@ -9,27 +11,160 @@ MPORT = 53476
 lock = threading.Lock()
 ANS_WORTH = 100
 ANS_TIME = 60000
-def host():#creates the host by getting the pin an connecting the cllinets
-    k = get_pin()#gets pin
+CNCT = 0
+PROG = 0
+QUESTNUM = 5
+
+def set():
+    ROOT = tk.Tk()
+    # specify size of window.
+    ROOT.geometry("400x400")
+
+    # Create text widget and specify size.
+    return ROOT
+def progress():
+    global PROG
+    PROG =1
+
+
+def opening(root,pin):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="wating for players....")
+    title.config(font=("Ariel", 18))
+    title.grid(row=0, column=0, sticky="NW")
+    title = tk.Label(f, text="the pin is:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1,column=0,sticky="NW")
+    title = tk.Label(f, text=pin)
+    title.config(font=("Ariel", 18))
+    title.grid(row=2, column=0, sticky="NW")
+    title = tk.Label(f, text="people who have connected are:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=3, column=0, sticky="NW")
+    return f
+
+def question(root, num,question,ans):
+        f = tk.Frame(root)
+        f.place(relx=0, rely=0)
+        title = tk.Label(f, text="questin: " + str(num) + "/" + "3")
+        title.config(font=("Ariel", 18))
+        title.grid(row=0, column=0, sticky="NW")
+        title = tk.Label(f, text=question)
+        title.config(font=("Ariel", 18))
+        title.grid(row=1, column=0, sticky="NW")
+        title = tk.Label(f, text="A." + ans[0])
+        title.config(font=("Ariel", 18))
+        title.grid(row=2, column=0, sticky="NW")
+        title = tk.Label(f, text="B."+ans[1])
+        title.config(font=("Ariel", 18))
+        title.grid(row=3, column=0, sticky="NW")
+        title = tk.Label(f, text="C."+ans[2])
+        title.config(font=("Ariel", 18))
+        title.grid(row=4, column=0, sticky="NW")
+        title = tk.Label(f, text="D."+ans[3])
+        title.config(font=("Ariel", 18))
+        title.grid(row=5, column=0, sticky="NW")
+        return f
+
+
+def answer(root,  ans):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="THE ANSWER IS: " )
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    title = tk.Label(f, text=ans)
+    title.config(font=("Ariel", 18))
+    title.grid(row=2, column=0, sticky="NW")
+    title = tk.Label(f, text="frst: " + CLINET_ARR[0].name)
+    title.config(font=("Ariel", 18))
+    title.grid(row=3, column=0, sticky="NW")
+    #title = tk.Label(f, text="secnd" + CLINET_ARR[1].name)
+    #title.config(font=("Ariel", 18))
+    #title.grid(row=0, column=3, sticky="NW")
+    #title = tk.Label(f, text="thrd" + CLINET_ARR[2].name)
+   # title.config(font=("Ariel", 18))
+   # title.grid(row=0, column=4, sticky="NW")
+    B = tk.Button(f, text="continue", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=4, column=0, sticky="NW")
+
+
+    return f
+
+
+def opening2(root,pin):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="wating for players....")
+    title.config(font=("Ariel", 18))
+    title.grid(row=0, column=0, sticky="NW")
+    title = tk.Label(f, text="the pin is:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    title = tk.Label(f, text=pin)
+    title.config(font=("Ariel", 18))
+    title.grid(row=2, column=0, sticky="NW")
+    title = tk.Label(f, text="people who have connected are:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=3, column=0, sticky="NW")
+    n = 4
+    for i in CLINET_ARR:
+        title = tk.Label(f, text=i.name)
+        title.config(font=("Ariel", 18))
+        title.grid(row=n, column=0, sticky="NW")
+        n = n+1
+
+    if n>=7:
+        B = tk.Button(f, text="continue",command = progress)
+        B.config(font=("Ariel", 18))
+        B.grid(row=n+1, column=0, sticky="NW")
+    # Insert The Fact.
+    return f
+
+
+
+
+def all_children(window):
+    _list = window.winfo_children()
+
+    for item in _list:
+        if item.winfo_children():
+            _list.extend(item.winfo_children())
+
+    return _list
+
+
+
+def reset(frm):
+    frm.destroy()
+def host(root):#creates the host by getting the pin an connecting the cllinets
+    global CRNT_FRM
+    global PROG
+    k,pin = get_pin()#gets pin
+    print(pin)
+    CRNT_FRM = opening(root,pin)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((IP, MPORT))#creates ne server
     var = 0
     arr = []#creates an array for the threads for each client
-    while var <2:#two clients needs to change to infinit aith timeouts
+    while var <3:#two clients needs to change to infinit aith timeouts
         s.listen()
         c, addr = s.accept()
-        print("here")
-        thread = threading.Thread(target=connect_client, args=(c, addr))#creates new thread for client
+        thread = threading.Thread(target=connect_client, args=(c, root,pin))#creates new thread for client
         thread.start()
         arr.append(thread)
         var += 1
     for i in arr:
-        i.join()#waits until all clients are connected an set
-
+        i.join()  # waits until all clients are connected an set
     k.send(build_ans("bye").encode())
-    k.close()#closes connection with server
-    handle_quiz()#handles the quiz
-
+    k.close()  # closes connection with server
+    while True:
+        if PROG == 1:
+            PROG = 0
+            handle_quiz(root)
+            break
 
 
 
@@ -39,10 +174,11 @@ def get_pin():#recieves game pin from server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SIP, SPORT))
     s.send((str(len("hello"))+"_"+"hello").encode())
-    print(all_mesage(s))
-    return s
+    msg = all_mesage(s)
+    return s,msg
 
-def connect_client(c,addr):#connects client and sets him up with the clients nickname
+def connect_client(c,root,pin):#connects client and sets him up with the clients nickname
+    global CRNT_FRM
     name = all_mesage(c)
     while  not name_in(name):
         c.send(build_ans("taken").encode())#checks if the nickname is taken
@@ -53,12 +189,32 @@ def connect_client(c,addr):#connects client and sets him up with the clients nic
     lock.release()
     print(name)
     c.send(build_ans("good").encode())
+    lock.acquire()
+    reset(CRNT_FRM)
+    CRNT_FRM = opening2(root,pin)
+    lock.release()
+def split_lines(frst):
+    arr = []
+    l = 0
+    for i in frst:
+        var = i.split("_")
+        arr.append(var[0])
+        l +=1
+    return arr
 
-def handle_quiz():
+
+def handle_quiz(root):
+    global  CRNT_FRM
+    global PROG
     with open("demo_quiz") as file:
         first_lines = "".join([file.readline() for _ in range(5)]).split("\n")
+        num = 1
+        quest = first_lines[0]
+        arr1 = split_lines(first_lines[1:])
+        reset(CRNT_FRM)
+        CRNT_FRM = question(root, num, quest, arr1)
+        print(first_lines)
         while not first_lines == [""]:
-            print(first_lines)
             for i in first_lines:
                 if "_T" in i:
                     ans = i.split("_")
@@ -74,7 +230,19 @@ def handle_quiz():
                         i.socket.send(build_ans(str(i.value) + "_" + str(i.added_value) + "_"+str(CLINET_ARR.index(i)+1)).encode())
                         #sends the value,added value and place of client to client to the client
 
+            reset(CRNT_FRM)
+            CRNT_FRM = answer(root,ans[1])
+            while True:
+                if PROG == 1:
+                    PROG = 0
+                    break
             first_lines = "".join([file.readline() for _ in range(5)]).split("\n")
+            if not first_lines == [""]:
+                num +=1
+                quest = first_lines[0]
+                arr1 = split_lines(first_lines[1:])
+                reset(CRNT_FRM)
+                CRNT_FRM = question(root, num, quest, arr1)
         for i in CLINET_ARR:
             i.end_client()
         CLINET_ARR.clear()
@@ -112,9 +280,14 @@ def handle_ans(true,cli):#handles the given ans and adds points accordingly
 
 
 
-def main():#main loop of
-   while True:
-        host()
+
+
 
 if __name__ == '__main__':
-    main()
+    root = set()
+    thread = threading.Thread(target=host,args = (root,))  # creates new thread for client
+    thread.start()
+    tk.mainloop()
+
+
+

@@ -1,74 +1,266 @@
 import socket
 import datetime
+import tkinter as tk
+import threading
+import time
 SIP = "127.0.0.1"
 SPORT = 55368
 MPORT = 53476
+PROG = 0
+CHOICE = 0
+def set():
+    ROOT = tk.Tk()
+    # specify size of window.
+    ROOT.geometry("400x400")
 
-def client():#main loop of the client
-   ip = get_addr()
+    # Create text widget and specify size.
+    return ROOT
+def progress():
+    global PROG
+    PROG =1
+
+def reset(frm):
+    frm.destroy()
+
+def send_choice():
+    global CHOICE
+
+def opening(root):
+    global PROG
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    n=0
+    title = tk.Label(f, text="the pin is:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=n,column=0,sticky="NW")
+    entry = tk.Entry(f)
+    entry.grid(row=n+1,column=0,sticky="NW")
+    B = tk.Button(f, text="continue", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=n+2, column=0, sticky="NW")
+    while True:
+        if PROG == 1:
+            PROG = 0
+            ans = entry.get()
+            break
+    return f,ans
+def opening2(root):
+    global PROG
+    global CRNT_FRM
+    reset(CRNT_FRM)
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="please enter apropriate pin")
+    title.config(font=("Ariel", 18))
+    n=0
+    title.grid(row=n, column=0, sticky="NW")
+    title = tk.Label(f, text="the pin is:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=n+1,column=0,sticky="NW")
+    entry = tk.Entry(f)
+    entry.grid(row=n+2,column=0,sticky="NW")
+    B = tk.Button(f, text="continue", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=n+3, column=0, sticky="NW")
+    while True:
+        if PROG == 1:
+            PROG = 0
+            ans = entry.get()
+            break
+    return f,ans
+
+def wating(root):
+    global PROG
+    global CRNT_FRM
+    reset(CRNT_FRM)
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="please wait for other players")
+    title.config(font=("Ariel", 18))
+    title.grid(row=0, column=0, sticky="NW")
+    CRNT_FRM = f
+
+def get_name(root):
+    global PROG
+    global CRNT_FRM
+    reset(CRNT_FRM)
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="what is your name?:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1,column=0,sticky="NW")
+    entry = tk.Entry(f)
+    entry.grid(row=2,column=0,sticky="NW")
+    B = tk.Button(f, text="continue", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=4, column=0, sticky="NW")
+    while True:
+        if PROG == 1:
+            PROG = 0
+            ans = entry.get()
+            break
+    return f,ans
+
+def get_name2(root):
+    global PROG
+    global CRNT_FRM
+    reset(CRNT_FRM)
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="the name u entered is taken,please enter a new name")
+    title.config(font=("Ariel", 18))
+    title.grid(row=0, column=0, sticky="NW")
+    title = tk.Label(f, text="what is your name?:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1,column=0,sticky="NW")
+    entry = tk.Entry(f)
+    entry.grid(row=2,column=0,sticky="NW")
+    B = tk.Button(f, text="continue", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=4, column=0, sticky="NW")
+    while True:
+        if PROG == 1:
+            PROG = 0
+            ans = entry.get()
+            break
+    return f,ans
+def answer_screen(root):
+    global CRNT_FRM
+    reset(CRNT_FRM)
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="what is the answer?:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    B = tk.Button(f, text="A", command=lambda :send_ans("A",root))
+    B.config(font=("Ariel", 18))
+    B.grid(row=2, column=0, sticky="NW")
+    B = tk.Button(f, text="B", command=lambda :send_ans("B",root))
+    B.config(font=("Ariel", 18))
+    B.grid(row=3, column=0, sticky="NW")
+    B = tk.Button(f, text="C", command=lambda :send_ans("C",root))
+    B.config(font=("Ariel", 18))
+    B.grid(row=4, column=0, sticky="NW")
+    B = tk.Button(f, text="D", command=lambda :send_ans("D",root))
+    B.config(font=("Ariel", 18))
+    B.grid(row=5, column=0, sticky="NW")
+    CRNT_FRM = f
+
+def between(root,arr):
+    global CRNT_FRM
+    print("ffdbf")
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    print(arr[1])
+    if not arr[1] =="0":
+        title = tk.Label(f, text="congrats!!!!")
+        title.config(font=("Ariel", 18))
+        title.grid(row=1, column=0, sticky="NW")
+    else:
+        title = tk.Label(f, text="fail")
+        title.config(font=("Ariel", 18))
+        title.grid(row=1, column=0, sticky="NW")
+    title = tk.Label(f, text="you gained: " + arr[1])
+    title.config(font=("Ariel", 18))
+    title.grid(row=2, column=0, sticky="NW")
+    title = tk.Label(f, text="total points: " + arr[0])
+    title.config(font=("Ariel", 18))
+    title.grid(row=3, column=0, sticky="NW")
+    title = tk.Label(f, text="your place:" + arr[2])
+    title.config(font=("Ariel", 18))
+    title.grid(row=4, column=0, sticky="NW")
+
+    CRNT_FRM = f
+def resety(r):
+    def all_children(window):
+        _list = window.winfo_children()
+
+        for item in _list:
+            if item.winfo_children():
+                _list.extend(item.winfo_children())
+
+        return _list
+
+    widget_list = all_children(r)
+    for item in widget_list:
+        try:
+            item.grid_forget()
+        except AttributeError:
+            pass
+
+def client(root):#main loop of the client
+   global  CRNT_FRM
+   global  SOCK
+   global STRT_TIME
+   ip = get_addr(root,0)
    while  ip == "no":
-       print("pin invalid enter new one")
-       ip = get_addr()
-   s = cnct_client(ip)
+       ip = get_addr(root,1)
+   print("bolahhh")
+   SOCK = cnct_client(ip,root)
    ans = ""
+   wating(root)
    while not ans == "STP":
-       ans = all_mesage(s)
+       ans = all_mesage(SOCK)
        if ans == "STRT":
-            answer = build_ans()
-            s.send(answer.encode())
-            point = all_mesage(s).split("_")
-            print("you have " + point[0] + " you gained "+point[1] + "and you are at place" + point[2])
+            STRT_TIME = datetime.datetime.now()
+            answer_screen(root)
+            point = all_mesage(SOCK).split("_")
+            resety(root)
+            between(root,point)
+
    print("congrats u finished game")
-   s.close()
+   SOCK.close()
 
+def send_ans(ans,root):
+    global SOCK
+    global CRNT_FRM
+    answer = build_ans(ans)
+    SOCK.send(answer.encode())
+    CRNT_FRM = wating(root)
 
-
-def get_addr():#gets the ip addr based on game pin
+def get_addr(root,var):#gets the ip addr based on game pin
+    global CRNT_FRM
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SIP, SPORT))
-    print("what is the passwrd")
-    ans = input()
+    if var == 0:
+        CRNT_FRM,ans = opening(root)
+    else:
+        CRNT_FRM, ans = opening2(root)
+    print(ans)
     s.send((build_answer("please")).encode())
     s.send(build_answer(ans).encode())
     addr = all_mesage(s)
+    print(addr)
     return addr
 
-def build_ans():
-    start_time = datetime.datetime.now()
-    ans = input()#this will change to choose based on button
+def build_ans(ans):
+    global STRT_TIME
+    start_time = STRT_TIME
     end_time = datetime.datetime.now()
     time_diff = (end_time - start_time)
     execution_time = time_diff.total_seconds() * 1000
     exe = int(execution_time)
+    print(exe)
     ans = build_answer(ans + "_" + str(exe))#builds the answer based on protocol len_ans_time
     return ans
 
 
 
-def cnct_client(ip):#connects client to host based on the ip gotten from server
+def cnct_client(ip,root):#connects client to host based on the ip gotten from server
+    global CRNT_FRM
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     s.connect((ip, MPORT))
-    print("what is your nickname")
-    name = input()
+    CRNT_FRM, name = get_name(root)
     s.send(build_answer(name).encode())  # sends nicname to host
     ans = all_mesage(s)
     while ans == "taken":
-        print("the name is taken enter new name")
-        name = input()
+        CRNT_FRM, name = get_name2(root)
         s.send(build_answer(name).encode())  # sends nicname to host
         ans = all_mesage(s)
 
     return s
 
-def main():
-   while True:
-        print("what am i")
-        ans = input()
-        if ans == "clinet":
-            client()
-        else:
-            print("please enter appropriate ans")
+
 
 def all_mesage(sock):#recievs all of the message based on the message length given at the begining of the messsage
     try:
@@ -88,10 +280,13 @@ def all_mesage(sock):#recievs all of the message based on the message length giv
     except:
         print("host disconnected unexpectedly")
         sock.close()
-        client()
+        client(root)
 def build_answer(ans):#builds apropriate answer according to protocol
     return str(len(ans))+"_"+ans
 
 
 if __name__ == '__main__':
-    main()
+    root = set()
+    thread = threading.Thread(target=client, args=(root,))  # creates new thread for client
+    thread.start()
+    root.mainloop()
