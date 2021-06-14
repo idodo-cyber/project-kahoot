@@ -2,32 +2,29 @@ import socket
 import threading
 from Client_class import Client
 import tkinter as tk
-from functools import partial
+import Kahoot
 SIP = "127.0.0.1"
-IP = "0.0.0.0"
-CLINET_ARR = []
 SPORT = 55368
 MPORT = 53476
+PROG1 = 0
+CHOICE = 0
+IP = "0.0.0.0"
+CLINET_ARR = []
 lock = threading.Lock()
 ANS_WORTH = 100
 ANS_TIME = 60000
 CNCT = 0
 PROG = 0
 QUESTNUM = 5
+STAT = 0
+PLAYER_NUM = 3
 
 def set():
     ROOT = tk.Tk()
     # specify size of window.
     ROOT.geometry("400x400")
-
-    # Create text widget and specify size.
     return ROOT
-def progress():
-    global PROG
-    PROG =1
-
-
-def opening(root,pin):
+def openinggg(root,pin):
     f = tk.Frame(root)
     f.place(relx=0, rely=0)
     title = tk.Label(f, text="wating for players....")
@@ -43,11 +40,106 @@ def opening(root,pin):
     title.config(font=("Ariel", 18))
     title.grid(row=3, column=0, sticky="NW")
     return f
+def Host_button():
+   global STAT
+   STAT = 1
+
+def client_button():
+   global STAT
+   STAT = 2
+
+
+
+def resety(r):
+    def all_children(window):
+        _list = window.winfo_children()
+
+        for item in _list:
+            if item.winfo_children():
+                _list.extend(item.winfo_children())
+
+        return _list
+
+    widget_list = all_children(r)
+    for item in widget_list:
+        try:
+            item.grid_forget()
+        except AttributeError:
+            pass
+
+
+def error(root):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="SERVER DISCONNECTED :(" )
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    B = tk.Button(f, text="new game", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=5, column=1, sticky="NW")
+
+    return f
+
+
+
+
+
+
+
+def ending(root):
+    names = ["first", "second", "third"]
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="THE END!!!!!!" )
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    n = 0
+    n1 = 2
+    for i in names:
+        if n < len(CLINET_ARR):
+            title = tk.Label(f, text=i + ":"+  CLINET_ARR[n].name)
+            title.config(font=("Ariel", 18))
+            title.grid(row=n1, column=0, sticky="NW")
+            title = tk.Label(f, text="with:" + str(CLINET_ARR[n].value))
+            title.config(font=("Ariel", 18))
+            title.grid(row=n1+1, column=0, sticky="NW")
+            n1 += 2
+            n += 1
+        else:
+            break
+    B = tk.Button(f, text="new game", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=n1+1, column=1, sticky="NW")
+
+
+    return f
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def progress():
+    global PROG
+    PROG =1
+
+
+
 
 def question(root, num,question,ans):
         f = tk.Frame(root)
         f.place(relx=0, rely=0)
-        title = tk.Label(f, text="questin: " + str(num) + "/" + "3")
+        title = tk.Label(f, text="questin: " + str(num) + "/" + "5")
         title.config(font=("Ariel", 18))
         title.grid(row=0, column=0, sticky="NW")
         title = tk.Label(f, text=question)
@@ -69,6 +161,7 @@ def question(root, num,question,ans):
 
 
 def answer(root,  ans):
+    names = ["first","second","third"]
     f = tk.Frame(root)
     f.place(relx=0, rely=0)
     title = tk.Label(f, text="THE ANSWER IS: " )
@@ -77,24 +170,27 @@ def answer(root,  ans):
     title = tk.Label(f, text=ans)
     title.config(font=("Ariel", 18))
     title.grid(row=2, column=0, sticky="NW")
-    title = tk.Label(f, text="frst: " + CLINET_ARR[0].name)
-    title.config(font=("Ariel", 18))
-    title.grid(row=3, column=0, sticky="NW")
-    #title = tk.Label(f, text="secnd" + CLINET_ARR[1].name)
-    #title.config(font=("Ariel", 18))
-    #title.grid(row=0, column=3, sticky="NW")
-    #title = tk.Label(f, text="thrd" + CLINET_ARR[2].name)
-   # title.config(font=("Ariel", 18))
-   # title.grid(row=0, column=4, sticky="NW")
+    n = 0
+    n1 = 3
+    for i in names:
+        if n< len(CLINET_ARR):
+            title = tk.Label(f, text=i+ " " + CLINET_ARR[n].name)
+            title.config(font=("Ariel", 18))
+            title.grid(row=n1, column=0, sticky="NW")
+            n1 += 1
+            n += 1
+        else:
+            break
     B = tk.Button(f, text="continue", command=progress)
     B.config(font=("Ariel", 18))
-    B.grid(row=4, column=0, sticky="NW")
+    B.grid(row=5, column=0, sticky="NW")
 
 
     return f
 
 
 def opening2(root,pin):
+    global PLAYER_NUM
     f = tk.Frame(root)
     f.place(relx=0, rely=0)
     title = tk.Label(f, text="wating for players....")
@@ -110,13 +206,14 @@ def opening2(root,pin):
     title.config(font=("Ariel", 18))
     title.grid(row=3, column=0, sticky="NW")
     n = 4
+    n1 = n
     for i in CLINET_ARR:
         title = tk.Label(f, text=i.name)
         title.config(font=("Ariel", 18))
         title.grid(row=n, column=0, sticky="NW")
         n = n+1
 
-    if n>=7:
+    if n>=n1 +PLAYER_NUM:
         B = tk.Button(f, text="continue",command = progress)
         B.config(font=("Ariel", 18))
         B.grid(row=n+1, column=0, sticky="NW")
@@ -142,14 +239,32 @@ def reset(frm):
 def host(root):#creates the host by getting the pin an connecting the cllinets
     global CRNT_FRM
     global PROG
-    k,pin = get_pin()#gets pin
+    global STAT
+    global PLAYER_NUM
+    PLAYER_NUM = 3
+    PROG = 0
+    CLINET_ARR.clear()
+    try:
+        k,pin = get_pin()#gets pin
+    except:
+        resety(root)
+        error(root)
+        while True:
+            if not PROG == 0:
+                break
+        if PROG == 1:
+            resety(root)
+            Kahoot.STAT = 0
+            Kahoot.start(root)
+        else:
+            root.destroy()
     print(pin)
-    CRNT_FRM = opening(root,pin)
+    CRNT_FRM = openinggg(root,pin)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((IP, MPORT))#creates ne server
     var = 0
     arr = []#creates an array for the threads for each client
-    while var <3:#two clients needs to change to infinit aith timeouts
+    while var < PLAYER_NUM:#two clients needs to change to infinit aith timeouts
         s.listen()
         c, addr = s.accept()
         thread = threading.Thread(target=connect_client, args=(c, root,pin))#creates new thread for client
@@ -165,9 +280,17 @@ def host(root):#creates the host by getting the pin an connecting the cllinets
             PROG = 0
             handle_quiz(root)
             break
+    resety(root)
+    ending(root)
+    while True:
+        if PROG == 1:
+            break
+    s.close()
+    resety(root)
+    Kahoot.STAT = 0
+    Kahoot.start(root)
 
-
-
+#
 
 
 def get_pin():#recieves game pin from server
@@ -206,6 +329,7 @@ def split_lines(frst):
 def handle_quiz(root):
     global  CRNT_FRM
     global PROG
+    global PLAYER_NUM
     with open("demo_quiz") as file:
         first_lines = "".join([file.readline() for _ in range(5)]).split("\n")
         num = 1
@@ -227,8 +351,12 @@ def handle_quiz(root):
                         thr.join()#waits until all clients are finished
                     CLINET_ARR.sort(key = lambda x:x.value,reverse=True)#sorts the clients based on their value
                     for i in CLINET_ARR:
-                        i.socket.send(build_ans(str(i.value) + "_" + str(i.added_value) + "_"+str(CLINET_ARR.index(i)+1)).encode())
-                        #sends the value,added value and place of client to client to the client
+                        try:
+                            i.socket.send(build_ans(str(i.value) + "_" + str(i.added_value) + "_"+str(CLINET_ARR.index(i)+1)).encode())
+                            #sends the value,added value and place of client to client to the client
+                        except:
+                            PLAYER_NUM  = PLAYER_NUM-1
+                            CLINET_ARR.remove(i)
 
             reset(CRNT_FRM)
             CRNT_FRM = answer(root,ans[1])
@@ -245,7 +373,7 @@ def handle_quiz(root):
                 CRNT_FRM = question(root, num, quest, arr1)
         for i in CLINET_ARR:
             i.end_client()
-        CLINET_ARR.clear()
+
 
 
 
@@ -268,15 +396,20 @@ def build_ans(ans):
     return str(len(ans))+"_"+ans
 
 def handle_ans(true,cli):#handles the given ans and adds points accordingly
-    cli.strt_classes()#sends start message to client
-    ans,time = cli.recv_ans()#recieves answer and time it tokk to answer from client
-    if ans == true:#if answer is correct adds the corresponding value
-        val = 1-(int(time)/ANS_TIME/2)
-        val = int(val*ANS_WORTH)
-    else:
-        val = 0
-    cli.add_value(val)
-    cli.Set_added_value(val)
+    global lock
+    global PLAYER_NUM
+    try:
+        cli.strt_classes()#sends start message to client
+        ans,time = cli.recv_ans()#recieves answer and time it tokk to answer from client
+        if ans == true:  # if answer is correct adds the corresponding value
+            val = 1 - (int(time) / ANS_TIME / 2)
+            val = int(val * ANS_WORTH)
+        else:
+            val = 0
+        cli.add_value(val)
+        cli.Set_added_value(val)
+    except:
+        cli.add_value(0)
 
 
 
@@ -285,7 +418,7 @@ def handle_ans(true,cli):#handles the given ans and adds points accordingly
 
 if __name__ == '__main__':
     root = set()
-    thread = threading.Thread(target=host,args = (root,))  # creates new thread for client
+    thread = threading.Thread(target=host,args = (root,),daemon=True)  # creates new thread for client
     thread.start()
     tk.mainloop()
 

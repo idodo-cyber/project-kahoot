@@ -2,19 +2,95 @@ import socket
 import datetime
 import tkinter as tk
 import threading
-import time
+import Kahoot
 SIP = "127.0.0.1"
 SPORT = 55368
 MPORT = 53476
 PROG = 0
 CHOICE = 0
+IP = "0.0.0.0"
+CLINET_ARR = []
+lock = threading.Lock()
+ANS_WORTH = 100
+ANS_TIME = 60000
+CNCT = 0
+PROG = 0
+QUESTNUM = 5
+
+
+
+
 def set():
     ROOT = tk.Tk()
     # specify size of window.
     ROOT.geometry("400x400")
-
-    # Create text widget and specify size.
     return ROOT
+def openinggg(root,pin):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="wating for players....")
+    title.config(font=("Ariel", 18))
+    title.grid(row=0, column=0, sticky="NW")
+    title = tk.Label(f, text="the pin is:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1,column=0,sticky="NW")
+    title = tk.Label(f, text=pin)
+    title.config(font=("Ariel", 18))
+    title.grid(row=2, column=0, sticky="NW")
+    title = tk.Label(f, text="people who have connected are:")
+    title.config(font=("Ariel", 18))
+    title.grid(row=3, column=0, sticky="NW")
+    return f
+def Host_button():
+   global STAT
+   STAT = 1
+
+def client_button():
+   global STAT
+   STAT = 2
+
+
+
+def resety(r):
+    def all_children(window):
+        _list = window.winfo_children()
+
+        for item in _list:
+            if item.winfo_children():
+                _list.extend(item.winfo_children())
+
+        return _list
+
+    widget_list = all_children(r)
+    for item in widget_list:
+        try:
+            item.grid_forget()
+        except AttributeError:
+            pass
+
+
+
+
+def screen(root):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="welcome to Iquiz!!!!!")
+    title.config(font=("Ariel", 18))
+    title.grid(row=0, column=0, sticky="NW")
+    title = tk.Label(f, text="please select your role")
+    title.config(font=("Ariel", 18))
+    title.grid(row=1,column=0,sticky="NW")
+    B = tk.Button(f, text="Host",  command=lambda :Host_button())
+    B.config(font=("Ariel", 18))
+    B.grid(row=4, column=0, sticky="NW")
+    B = tk.Button(f, text="player", command=client_button)
+    B.config(font=("Ariel", 18))
+    B.grid(row=5, column=0, sticky="NW")
+    return f
+
+
+
+
 def progress():
     global PROG
     PROG =1
@@ -25,12 +101,12 @@ def reset(frm):
 def send_choice():
     global CHOICE
 
-def opening(root):
+def opening1(root):
     global PROG
     f = tk.Frame(root)
     f.place(relx=0, rely=0)
     n=0
-    title = tk.Label(f, text="the pin is:")
+    title = tk.Label(f, text="please enter correct pin")
     title.config(font=("Ariel", 18))
     title.grid(row=n,column=0,sticky="NW")
     entry = tk.Entry(f)
@@ -44,6 +120,9 @@ def opening(root):
             ans = entry.get()
             break
     return f,ans
+
+
+
 def opening2(root):
     global PROG
     global CRNT_FRM
@@ -148,7 +227,6 @@ def answer_screen(root):
 
 def between(root,arr):
     global CRNT_FRM
-    print("ffdbf")
     f = tk.Frame(root)
     f.place(relx=0, rely=0)
     print(arr[1])
@@ -171,45 +249,90 @@ def between(root,arr):
     title.grid(row=4, column=0, sticky="NW")
 
     CRNT_FRM = f
-def resety(r):
-    def all_children(window):
-        _list = window.winfo_children()
 
-        for item in _list:
-            if item.winfo_children():
-                _list.extend(item.winfo_children())
-
-        return _list
-
-    widget_list = all_children(r)
-    for item in widget_list:
-        try:
-            item.grid_forget()
-        except AttributeError:
-            pass
 
 def client(root):#main loop of the client
    global  CRNT_FRM
    global  SOCK
    global STRT_TIME
-   ip = get_addr(root,0)
-   while  ip == "no":
-       ip = get_addr(root,1)
-   print("bolahhh")
-   SOCK = cnct_client(ip,root)
-   ans = ""
-   wating(root)
-   while not ans == "STP":
-       ans = all_mesage(SOCK)
-       if ans == "STRT":
-            STRT_TIME = datetime.datetime.now()
-            answer_screen(root)
-            point = all_mesage(SOCK).split("_")
-            resety(root)
-            between(root,point)
+   global PROG
+   try:
+    ip = get_addr(root,0)
+    while  ip == "no":
+        ip = get_addr(root,0)
+    resety(root)
+    SOCK = cnct_client(ip,root)
+    ans = ""
+    wating(root)
+    while not ans == "STP":
+        ans = all_mesage(SOCK)
+        if ans == "STRT":
+             STRT_TIME = datetime.datetime.now()
+             answer_screen(root)
+             point = all_mesage(SOCK).split("_")
+             resety(root)
+             between(root,point)
+    print("congrats u finished game")
+    SOCK.close()
+    resety(root)
+    ending(root,point)
+    while True:
+        if not PROG == 0:
+             break
+    if PROG == 1:
+         resety(root)
+         Kahoot.STAT = 0
+         Kahoot.start(root)
+    else:
+        root.destroy()
+   except:
+       resety(root)
+       error(root)
+       while True:
+           if not PROG == 0:
+               break
+       if PROG == 1:
+           resety(root)
+           Kahoot.STAT = 0
+           Kahoot.start(root)
+       else:
+           root.destroy()
 
-   print("congrats u finished game")
-   SOCK.close()
+def end():
+    global PROG
+    PROG = 2
+
+def ending(root,ans):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="THE END!!!!!!" )
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    title = tk.Label(f, text="total points: " + ans[0])
+    title.config(font=("Ariel", 18))
+    title.grid(row=2, column=0, sticky="NW")
+    title = tk.Label(f, text="your place:" + ans[2])
+    title.config(font=("Ariel", 18))
+    title.grid(row=3, column=0, sticky="NW")
+    B = tk.Button(f, text="new game", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=4, column=1, sticky="NW")
+
+
+    return f
+
+def error(root):
+    f = tk.Frame(root)
+    f.place(relx=0, rely=0)
+    title = tk.Label(f, text="HOST DISCONNECTED :(" )
+    title.config(font=("Ariel", 18))
+    title.grid(row=1, column=0, sticky="NW")
+    B = tk.Button(f, text="new game", command=progress)
+    B.config(font=("Ariel", 18))
+    B.grid(row=2, column=1, sticky="NW")
+
+    return f
+
 
 def send_ans(ans,root):
     global SOCK
@@ -223,7 +346,7 @@ def get_addr(root,var):#gets the ip addr based on game pin
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SIP, SPORT))
     if var == 0:
-        CRNT_FRM,ans = opening(root)
+        CRNT_FRM,ans = opening1(root)
     else:
         CRNT_FRM, ans = opening2(root)
     print(ans)
@@ -286,7 +409,10 @@ def build_answer(ans):#builds apropriate answer according to protocol
 
 
 if __name__ == '__main__':
-    root = set()
-    thread = threading.Thread(target=client, args=(root,))  # creates new thread for client
-    thread.start()
-    root.mainloop()
+    try:
+        root = set()
+        thread = threading.Thread(target=client, args=(root,),daemon=True)  # creates new thread for client
+        thread.start()
+        root.mainloop()
+    except:
+        quit()

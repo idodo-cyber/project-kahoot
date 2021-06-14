@@ -16,6 +16,7 @@ class Client(object):
     def Set_added_value(self,add):
         self.added_value = add
     def strt_classes(self):
+        self.socket.settimeout(20)
         self.socket.send((str(len("STRT"))+ "_" + "STRT").encode())
     def end_client(self):
         self.socket.send((str(len("STP")) + "_" + "STP").encode())
@@ -34,7 +35,7 @@ class Client(object):
 
 def all_mesage(sock):#recievs all of the message based on the message length given at the begining of the messsage
     try:
-        sock.settimeout(60)
+        sock.settimeout(20)
         lent = sock.recv(1).decode()
         while "_" not in lent:
             lent += sock.recv(1).decode()
